@@ -5,7 +5,8 @@
   "description": "Resalta elementos HTML y copia su outerHTML al portapapeles.",
   "permissions": [
     "activeTab",
-    "clipboardWrite"
+    "clipboardWrite",
+    "storage"
   ],
   "background": {
     "service_worker": "background.js"
