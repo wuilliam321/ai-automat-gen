@@ -3,16 +3,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const finishButton = document.getElementById('finish-button');
   const clearAllButton = document.getElementById('clear-all-button');
   const toggleButton = document.getElementById('toggle-button');
+  const currentUrlInput = document.getElementById('current-url');
 
   let isActive = false;
 
   // Recuperar pasos guardados y el estado activo
-  chrome.storage.local.get(['steps', 'isActive'], function(result) {
+  chrome.storage.local.get(['steps', 'isActive', 'currentUrl'], function(result) {
     const steps = result.steps || [];
     steps.forEach((step, index) => {
       addStep(index + 1, step.html, step.notes);
     });
     isActive = result.isActive || false;
+    currentUrlInput.value = result.currentUrl || '';
     updateToggleButton();
   });
 
@@ -63,7 +65,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const htmlContent = stepDiv.querySelector('pre').innerText;
       steps.push({ notes, htmlContent });
     }
-    chrome.storage.local.set({ steps });
+    const currentUrl = currentUrlInput.value;
+    chrome.storage.local.set({ steps, currentUrl });
   }
 
   // Actualizar números de pasos después de eliminar uno
@@ -82,9 +85,52 @@ document.addEventListener('DOMContentLoaded', () => {
     for (let stepDiv of stepDivs) {
       const notes = stepDiv.querySelector('textarea').value;
       const htmlContent = stepDiv.querySelector('pre').innerText;
-      steps.push(`## Paso ${steps.length + 1}\nNotas: ${notes}\n\`\`\`html\n${htmlContent}\n\`\`\`\n`);
+      steps.push(`## Paso ${steps.length + 1}\nInstrucciones: ${notes}\n\`\`\`html\n${htmlContent}\n\`\`\`\n`);
     }
-    const finalContent = steps.join('\n');
+    const finalContent = `
+Eres un QA Automation Engineer, vas a generar un script de automatizacion.
+
+## Script de automatizacion
+URL: ${currentUrlInput.value}
+
+Vamos a automatizar con python y playwright, debes generar un archivo
+<page>_test.py que ejecute el test, donde page es la pagina en la que estas
+actualmente, debes deducirlo de los pasos que te estoy indicando.
+
+Solo crea <page>_test.py y selectores.py, donde ira el codigo y los selectores html.
+
+Vamos a generar selectores que sean por texto preferiblemente luego usa las
+reglas estandar de playwright, usa el block code html para ubicar el texto o el
+selector mas indicado, has uso de las instrucciones para construir el mejor 
+selector posible, con el texto tal como lo indique el html.
+
+El codigo debe correrse con \`pytest --headed\`
+
+Genera el requirements.txt necesario para que sea facil instalar todo
+rapidamente
+
+Este es un template de cada page
+\`\`\`python
+from playwright.sync_api import Page
+from selectores import Selectors
+
+
+def test_codecrafters_flow(page: Page):
+    page.goto(url)
+
+    # Paso 1: Indicaciones...
+    page.click(Selectors.A_SELECTOR)
+
+    # Paso N: Lo que corresponda
+
+    # Verificar que estamos en la página correcta
+    assert # Lo que este indicado en el paso
+
+    page.close()
+\`\`\`
+
+${steps.join('\n')}`;
+
     navigator.clipboard.writeText(finalContent).then(() => {
       alert('Contenido copiado al portapapeles');
     }).catch(err => {
@@ -110,6 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateToggleButton();
   });
 
-  // Guardar pasos al modificar notas
+  // Guardar pasos al modificar notas y URL
   stepsContainer.addEventListener('input', saveSteps);
+  currentUrlInput.addEventListener('input', saveSteps);
 });

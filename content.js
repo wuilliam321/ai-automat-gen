@@ -10,25 +10,20 @@ function addListeners() {
     chrome.storage.local.get(['isActive'], function(result) {
       if (!result.isActive) return;
 
-      // Si ya hay un elemento con listeners, eliminar los listeners de ese elemento
-      if (currentTarget) {
-        removeListeners(currentTarget);
-      }
-
       // Guardar el nuevo elemento como el objetivo actual
       currentTarget = target;
 
       // Añadir clase de resaltado
-      currentTarget.classList.add('hover-highlight');
+      target.classList.add('hover-highlight');
 
       // Remover clase de resaltado y listeners al quitar el cursor
-      currentTarget.addEventListener('mouseout', () => {
-        removeListeners(currentTarget);
+      target.addEventListener('mouseout', () => {
+        removeListeners(target);
       }, { once: true });
 
       // Capturar clic y enviar mensaje al background script
       clickListener = () => {
-        const outerHTML = currentTarget.outerHTML;
+        const outerHTML = target.outerHTML;
 
         // Intentar enviar el mensaje al background script
         try {
@@ -44,7 +39,7 @@ function addListeners() {
         }
       };
 
-      currentTarget.addEventListener('click', clickListener, { once: true });
+      target.addEventListener('click', clickListener, { once: true });
     });
   };
 
@@ -52,9 +47,6 @@ function addListeners() {
 }
 
 function removeListeners(target) {
-  if (hoverListener) {
-    document.removeEventListener('mouseover', hoverListener);
-  }
   if (target && clickListener) {
     target.removeEventListener('click', clickListener);
     target.classList.remove('hover-highlight');
