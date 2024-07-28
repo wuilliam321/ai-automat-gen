@@ -10,63 +10,72 @@ document.addEventListener('DOMContentLoaded', () => {
   // Recuperar pasos guardados y el estado activo
   chrome.storage.local.get(['steps', 'isActive', 'currentUrl'], function(result) {
     const steps = result.steps || [];
-    steps.forEach((step, index) => {
-      addStep(index + 1, step.html, step.notes);
+    steps.forEach((step) => {
+      addStep(step.id, step.html, step.notes);
     });
     isActive = result.isActive || false;
     currentUrlInput.value = result.currentUrl || '';
     updateToggleButton();
   });
 
-  // Función para escapar caracteres especiales en HTML
-  function escapeHtml(html) {
-    const div = document.createElement('div');
-    div.innerText = html;
-    return div.innerHTML;
-  }
-
   // Agregar un nuevo paso al contenedor
-  function addStep(stepNumber, htmlContent, notes) {
+  function addStep(stepId, htmlContent, notes) {
     const stepDiv = document.createElement('div');
     stepDiv.classList.add('step');
+    stepDiv.setAttribute('data-step-id', stepId);
     stepDiv.innerHTML = `
-      <h4>Paso ${stepNumber} <span class="delete-step" data-step="${stepNumber}">X</span></h4>
+      <h4>Paso <span class="step-number"></span> <span class="delete-step" data-step-id="${stepId}">X</span></h4>
       <textarea placeholder="Notas...">${notes || ''}</textarea>
-      <pre>${escapeHtml(htmlContent)}</pre>
+      <pre>${htmlContent}</pre>
     `;
     stepsContainer.appendChild(stepDiv);
 
     // Añadir evento de eliminación de paso
     stepDiv.querySelector('.delete-step').addEventListener('click', () => {
-      stepDiv.remove();
-      updateStepNumbers();
-      saveSteps();
+      chrome.storage.local.get(['steps'], function(result) {
+        const steps = result.steps || [];
+        steps.forEach((step, idx) => {
+          const stepId = stepDiv.getAttribute('data-step-id');
+          if (step.id === stepId) {
+            steps.splice(idx, 1);
+            stepDiv.remove();
+          }
+        });
+
+        updateStepNumbers();
+
+        chrome.storage.local.set({ steps }, () => {
+          console.log("step deleted")
+        });
+      });
     });
 
     // Guardar contenido del textarea
-    stepDiv.querySelector('textarea').addEventListener('input', saveSteps);
-  }
+    stepDiv.querySelector('textarea').addEventListener('focusout', saveSteps);
 
-  // Escuchar mensajes del content script
-  chrome.runtime.onMessage.addListener((request) => {
-    if (isActive && request.action === 'addStep') {
-      const stepNumber = stepsContainer.children.length + 1;
-      addStep(stepNumber, request.htmlContent, '');
-      saveSteps();
-    }
-  });
+    updateStepNumbers();
+  }
 
   // Guardar los pasos en el almacenamiento local
   function saveSteps() {
-    const steps = [];
-    const stepDivs = stepsContainer.getElementsByClassName('step');
-    for (let stepDiv of stepDivs) {
-      const notes = stepDiv.querySelector('textarea').value;
-      const htmlContent = stepDiv.querySelector('pre').innerText;
-      steps.push({ notes, htmlContent });
-    }
-    const currentUrl = currentUrlInput.value;
-    chrome.storage.local.set({ steps, currentUrl });
+    chrome.storage.local.get(['steps'], function(result) {
+      const steps = result.steps || [];
+      steps.forEach((step, idx) => {
+        const stepDivs = stepsContainer.getElementsByClassName('step');
+        for (let stepDiv of stepDivs) {
+          const stepId = stepDiv.getAttribute('data-step-id');
+          console.log(stepId, step.id, step.id === stepId);
+          if (step.id === stepId) {
+            const notes = stepDiv.querySelector('textarea').value;
+            steps[idx] = { id: step.id, notes, html: step.html };
+          }
+        }
+      });
+
+      chrome.storage.local.set({ steps }, () => {
+        console.log("steps updated")
+      });
+    });
   }
 
   // Actualizar números de pasos después de eliminar uno
@@ -74,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const stepDivs = stepsContainer.getElementsByClassName('step');
     Array.from(stepDivs).forEach((stepDiv, index) => {
       const stepNumber = index + 1;
-      stepDiv.querySelector('h4').innerHTML = `Paso ${stepNumber} <span class="delete-step" data-step="${stepNumber}">X</span>`;
+      stepDiv.querySelector('.step-number').textContent = stepNumber;
     });
   }
 
@@ -85,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
     for (let stepDiv of stepDivs) {
       const notes = stepDiv.querySelector('textarea').value;
       const htmlContent = stepDiv.querySelector('pre').innerText;
-      steps.push(`## Paso ${steps.length + 1}\nInstrucciones: ${notes}\n\`\`\`html\n${htmlContent}\n\`\`\`\n`);
+      steps.push(`## Paso ${steps.length + 1}\nNotas: ${notes}\n\`\`\`html\n${htmlContent}\n\`\`\`\n`);
     }
     const finalContent = `
 Eres un QA Automation Engineer, vas a generar un script de automatizacion.
@@ -99,10 +108,8 @@ actualmente, debes deducirlo de los pasos que te estoy indicando.
 
 Solo crea <page>_test.py y selectores.py, donde ira el codigo y los selectores html.
 
-Vamos a generar selectores que sean por texto preferiblemente luego usa las
-reglas estandar de playwright, usa el block code html para ubicar el texto o el
-selector mas indicado, has uso de las instrucciones para construir el mejor 
-selector posible, con el texto tal como lo indique el html.
+Vamos a generar selectores que sean por texto preferiblemente, luego usa las
+reglas estandar de playwright
 
 El codigo debe correrse con \`pytest --headed\`
 
@@ -157,6 +164,6 @@ ${steps.join('\n')}`;
   });
 
   // Guardar pasos al modificar notas y URL
-  stepsContainer.addEventListener('input', saveSteps);
-  currentUrlInput.addEventListener('input', saveSteps);
+  stepsContainer.addEventListener('focusout', saveSteps);
+  currentUrlInput.addEventListener('focusout', saveSteps);
 });
