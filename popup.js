@@ -10,6 +10,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Función para escapar caracteres especiales en HTML
+  function escapeHtml(html) {
+    const div = document.createElement('div');
+    div.innerText = html;
+    return div.innerHTML;
+  }
+
   // Agregar un nuevo paso al contenedor
   function addStep(stepNumber, htmlContent, notes) {
     const stepDiv = document.createElement('div');
@@ -17,10 +24,19 @@ document.addEventListener('DOMContentLoaded', () => {
     stepDiv.innerHTML = `
       <h4>Paso ${stepNumber}</h4>
       <textarea placeholder="Notas...">${notes || ''}</textarea>
-      <pre>${htmlContent}</pre>
+      <pre>${escapeHtml(htmlContent)}</pre>
     `;
     stepsContainer.appendChild(stepDiv);
   }
+
+  // Escuchar mensajes del content script
+  chrome.runtime.onMessage.addListener((request) => {
+    if (request.action === 'addStep') {
+      const stepNumber = stepsContainer.children.length + 1;
+      addStep(stepNumber, request.htmlContent, '');
+      saveSteps();
+    }
+  });
 
   // Guardar los pasos en el almacenamiento local
   function saveSteps() {
