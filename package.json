@@ -1,0 +1,13 @@
+{
+  "name": "ai-automation",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "zip": "/usr/bin/zip -r build.zip popup.html content.js manifest.json package.json styles.css icons",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
