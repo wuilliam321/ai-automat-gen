@@ -4,11 +4,11 @@ function generateUniqueId() {
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === 'addStep') {
+  if (message.method === 'addStep') {
     chrome.storage.local.get(['steps'], function(result) {
       const steps = result.steps || [];
       const stepId = generateUniqueId();
-      steps.push({ id: stepId, html: message.htmlContent, notes: result.notes });
+      steps.push({ id: stepId, action: message.action, html: message.htmlContent, notes: "" });
       chrome.storage.local.set({ steps }, () => {
         sendResponse({ status: 'success' });
       });

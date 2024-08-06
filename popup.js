@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   chrome.storage.local.get(['steps', 'isActive', 'currentUrl'], function(result) {
     const steps = result.steps || [];
     steps.forEach((step) => {
-      addStep(step.id, step.html, step.notes);
+      addStep(step.id, step.html, step.notes, step.action);
     });
     isActive = result.isActive || false;
     currentUrlInput.value = result.currentUrl || '';
@@ -19,12 +19,24 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Agregar un nuevo paso al contenedor
-  function addStep(stepId, htmlContent, notes) {
+  function addStep(stepId, htmlContent, notes, action) {
     const stepDiv = document.createElement('div');
     stepDiv.classList.add('step');
     stepDiv.setAttribute('data-step-id', stepId);
     stepDiv.innerHTML = `
       <h4>Paso <span class="step-number"></span> <span class="delete-step" data-step-id="${stepId}">X</span></h4>
+      <select id="action-select">
+        <option value="">Seleccionar acción</option>
+        <option value="click"${action == "click" ? ' selected="selected"' : ''}>Click</option>
+        <option value="hover"${action == "hover" ? ' selected="selected"' : ''}>Hover</option>
+        <option value="dblclick"${action == "dblclick" ? ' selected="selected"' : ''}>Doble click</option>
+        <option value="keydown"${action == "keydown" ? ' selected="selected"' : ''}>Tecla presionada</option>
+        <option value="keyup"${action == "keyup" ? ' selected="selected"' : ''}>Tecla soltada</option>
+        <option value="blur"${action == "blur" ? ' selected="selected"' : ''}>Perder foco</option>
+        <option value="focus"${action == "focus" ? ' selected="selected"' : ''}>Obtener foco</option>
+        <option value="change"${action == "change" ? ' selected="selected"' : ''}>Cambio de valor</option>
+        <option value="input"${action == "input" ? ' selected="selected"' : ''}>Entrada de texto</option>
+      </select>
       <textarea placeholder="Notas...">${notes || ''}</textarea>
       <pre>${htmlContent}</pre>
     `;
@@ -52,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Guardar contenido del textarea
     stepDiv.querySelector('textarea').addEventListener('focusout', saveSteps);
+    stepDiv.querySelector('select').addEventListener('change', saveSteps);
 
     updateStepNumbers();
   }
@@ -64,16 +77,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const stepDivs = stepsContainer.getElementsByClassName('step');
         for (let stepDiv of stepDivs) {
           const stepId = stepDiv.getAttribute('data-step-id');
-          console.log(stepId, step.id, step.id === stepId);
           if (step.id === stepId) {
+            const action = stepDiv.querySelector('select').value;
             const notes = stepDiv.querySelector('textarea').value;
-            steps[idx] = { id: step.id, notes, html: step.html };
+            steps[idx] = { id: step.id, action, html: step.html, notes };
           }
         }
       });
 
       chrome.storage.local.set({ steps }, () => {
-        console.log("steps updated")
+        console.log("steps updated", steps)
       });
     });
   }
@@ -92,9 +105,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const steps = [];
     const stepDivs = stepsContainer.getElementsByClassName('step');
     for (let stepDiv of stepDivs) {
+      const action = stepDiv.querySelector('select').value;
       const notes = stepDiv.querySelector('textarea').value;
       const htmlContent = stepDiv.querySelector('pre').innerText;
-      steps.push(`## Paso ${steps.length + 1}\nNotas: ${notes}\n\`\`\`html\n${htmlContent}\n\`\`\`\n`);
+      steps.push(`## Paso ${steps.length + 1}\nAccion: ${action}. ${notes ? "Notas: " + notes : ""}\n\`\`\`html\n${htmlContent}\n\`\`\`\n`);
     }
     const finalContent = `
 Eres un QA Automation Engineer, vas a generar un script de automatizacion.

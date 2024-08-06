@@ -34,7 +34,7 @@ function addListeners() {
 
         // Intentar enviar el mensaje al background script
         try {
-          chrome.runtime.sendMessage({ action: 'addStep', htmlContent: escapeHtml(outerHTML) }, (response) => {
+          chrome.runtime.sendMessage({ method: 'addStep', htmlContent: escapeHtml(outerHTML), action: 'click' }, (response) => {
             if (chrome.runtime.lastError) {
               console.error('Error al enviar mensaje: ', chrome.runtime.lastError.message);
             } else {
