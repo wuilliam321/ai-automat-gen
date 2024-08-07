@@ -88,6 +88,11 @@ document.addEventListener('DOMContentLoaded', () => {
       chrome.storage.local.set({ steps }, () => {
         console.log("steps updated", steps)
       });
+
+      const currentUrl = document.getElementById('current-url').value;
+      chrome.storage.local.set({ currentUrl }, () => {
+        console.log("url updated", currentUrl)
+      });
     });
   }
 
