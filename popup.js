@@ -118,13 +118,15 @@ document.addEventListener('DOMContentLoaded', () => {
       steps.push({ id, action, notes, html: htmlContent });
     }
 
+    const currentUrl = document.getElementById('current-url').value;
+
     // Hacer una solicitud POST a la API externa con los datos de los pasos
     fetch('http://localhost:3001/generate-content', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(steps)
+      body: JSON.stringify({ steps, currentUrl })
     })
       .then(response => response.json())
       .then(data => console.log('Pasos enviados a la API: ', data))
