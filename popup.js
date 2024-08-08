@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <option value="focus"${action == "focus" ? ' selected="selected"' : ''}>Obtener foco</option>
         <option value="change"${action == "change" ? ' selected="selected"' : ''}>Cambio de valor</option>
         <option value="input"${action == "input" ? ' selected="selected"' : ''}>Entrada de texto</option>
+        <option value="assertion"${action == "assertion" ? ' selected=selected' : ''}>Assertion</option>
       </select>
       <textarea placeholder="Notas...">${notes || ''}</textarea>
       <pre>${htmlContent}</pre>
@@ -113,55 +114,23 @@ document.addEventListener('DOMContentLoaded', () => {
       const action = stepDiv.querySelector('select').value;
       const notes = stepDiv.querySelector('textarea').value;
       const htmlContent = stepDiv.querySelector('pre').innerText;
-      steps.push(`## Paso ${steps.length + 1}\nAccion: ${action}. ${notes ? "Notas: " + notes : ""}\n\`\`\`html\n${htmlContent}\n\`\`\`\n`);
+      const id = stepDiv.getAttribute('data-step-id');
+      steps.push({ id, action, notes, html: htmlContent });
     }
-    const finalContent = `
-Eres un QA Automation Engineer, vas a generar un script de automatizacion.
 
-## Script de automatizacion
-URL: ${currentUrlInput.value}
-
-Vamos a automatizar con python y playwright, debes generar un archivo
-<page>_test.py que ejecute el test, donde page es la pagina en la que estas
-actualmente, debes deducirlo de los pasos que te estoy indicando.
-
-Solo crea <page>_test.py y selectores.py, donde ira el codigo y los selectores html.
-
-Vamos a generar selectores que sean por texto preferiblemente, luego usa las
-reglas estandar de playwright
-
-El codigo debe correrse con \`pytest --headed\`
-
-Genera el requirements.txt necesario para que sea facil instalar todo
-rapidamente
-
-Este es un template de cada page
-\`\`\`python
-from playwright.sync_api import Page
-from selectores import Selectors
-
-
-def test_codecrafters_flow(page: Page):
-    page.goto(url)
-
-    # Paso 1: Indicaciones...
-    page.click(Selectors.A_SELECTOR)
-
-    # Paso N: Lo que corresponda
-
-    # Verificar que estamos en la página correcta
-    assert # Lo que este indicado en el paso
-
-    page.close()
-\`\`\`
-
-${steps.join('\n')}`;
-
-    navigator.clipboard.writeText(finalContent).then(() => {
-      alert('Contenido copiado al portapapeles');
-    }).catch(err => {
-      console.error('Error al copiar al portapapeles: ', err);
-    });
+    // Hacer una solicitud POST a la API externa con los datos de los pasos
+    fetch('http://localhost:3001/generate-content', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(steps)
+    })
+      .then(response => response.json())
+      .then(data => console.log('Pasos enviados a la API: ', data))
+      .catch((error) => {
+        console.error('Error al enviar pasos a la API: ', error);
+      });
   });
 
   // Limpiar todos los pasos
