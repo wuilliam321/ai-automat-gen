@@ -108,6 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Copiar todos los pasos al portapapeles
   finishButton.addEventListener('click', () => {
+    document.getElementById('content').textContent = "";
     const steps = [];
     const stepDivs = stepsContainer.getElementsByClassName('step');
     for (let stepDiv of stepDivs) {
@@ -121,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentUrl = document.getElementById('current-url').value;
 
     // Hacer una solicitud POST a la API externa con los datos de los pasos
-    fetch('http://localhost:3001/generate-content', {
+    fetch('http://192.168.1.19:3001/generate-content', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -129,7 +130,11 @@ document.addEventListener('DOMContentLoaded', () => {
       body: JSON.stringify({ steps, currentUrl })
     })
       .then(response => response.json())
-      .then(data => console.log('Pasos enviados a la API: ', data))
+      .then(data => {
+        console.log('Pasos enviados a la API: ', data);
+
+        document.getElementById('content').textContent = data.message;
+      })
       .catch((error) => {
         console.error('Error al enviar pasos a la API: ', error);
       });

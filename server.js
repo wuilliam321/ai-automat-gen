@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const playwright = require('./playwright');
+const selenium = require('./selenium');
 const app = express();
 app.use(express.json()); // Para analizar el cuerpo de las solicitudes JSON
 app.use(cors()); // Para analizar el cuerpo de las solicitudes JSON
@@ -18,8 +19,11 @@ let generateContentHandler = noop;
 if (mode === 'playwright') {
   generateContentHandler = playwright.handler;
   canRun = true;
+} else if (mode === 'selenium') {
+  generateContentHandler = selenium.handler;
+  canRun = true;
 } else {
-  console.log("wrong use: node server.js playwright");
+  console.log("wrong use: node server.js [playwright|selenium]");
   canRun = true;
 }
 

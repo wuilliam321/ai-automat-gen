@@ -8,7 +8,7 @@ const handler = async (req, res) => {
 };
 
 function generatePrompt(steps, currentUrl) {
-  const tools = "python y playwright"
+  const tools = "python con unittest y selenium"
   let stepContent = '';
   for (let i = 0; i < steps.length; i++) {
     const step = steps[i];
@@ -31,28 +31,44 @@ proveo porque es reservado para uso interno.
 
 Vamos a generar selectores que sean por texto preferiblemente.
 
-El código debe correrse con \`pytest --headed\`.
+El código debe correrse con \`python <page>_test.py\`.
 
 Genera el requirements.txt necesario para que sea fácil instalar todo
 rápidamente.
 
 Este es un template de cada página
 \`\`\`python
-from playwright.sync_api import Page
+import unittest
+from selenium import webdriver
+from selenium.webdriver.firefox.service import Service as FirefoxService
+from webdriver_manager.firefox import GeckoDriverManager
+
 from selectores import Selectores
 
-def test_the_best_name_you_can(page: Page):
-    page.goto(url)
+class <Page>TestSuite(unittest.TestCase):
 
-    # Paso 1: Indicaciones...
-    page.click(Selectors.A_SELECTOR)
+    def setUp(self):
+        self. driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()))
 
-    # Paso N: Lo que corresponda
+    def test_the_best_name_you_can(self):
+        driver = self.driver
+        driver.get(url)
 
-    # Verificar que estamos en la página correcta
-    assert # Lo que esté indicado en el paso en concordancia con la accion dada
+        # Paso 1: Indicaciones...
+        elem = driver.find_element(Selectores.A_SELECTOR, "Selecciona el mejor valor posible")
 
-    page.close()
+        # Paso N: Lo que corresponda
+
+        # Verificar que estamos en la página correcta
+
+        # Hacer assertion segun lo que esté indicado en el paso en concordancia con la accion dada
+
+
+    def tearDown(self):
+        self.driver.close()
+
+if __name__ == "__main__":
+    unittest.main()
 \`\`\`
 
 ${stepContent}`
