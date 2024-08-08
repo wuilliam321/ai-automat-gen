@@ -1,5 +1,5 @@
 const url = 'http://192.168.1.19:1234/v1/chat/completions';
-const model = "lmstudio-community/Meta-Llama-3.1-8B-Instruct-GGUF"
+const model = "bartowski/Codestral-22B-v0.1-GGUF"
 
 async function generateCode(prompt) {
   const body = JSON.stringify({
@@ -8,7 +8,7 @@ async function generateCode(prompt) {
       { "role": "system", "content": "Do not explain, just give me the filenames and the content of each" },
       { "role": "user", "content": prompt }
     ],
-    "temperature": 0.8,
+    "temperature": 0.3,
     "max_tokens": -1,
     "stream": false
   });

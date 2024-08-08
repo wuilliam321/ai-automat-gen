@@ -8,7 +8,7 @@ const handler = async (req, res) => {
 };
 
 function generatePrompt(steps, currentUrl) {
-  const tools = "python con unittest y selenium"
+  const tools = "python con unittest y selenium 4"
   let stepContent = '';
   for (let i = 0; i < steps.length; i++) {
     const step = steps[i];
@@ -20,16 +20,21 @@ Eres un QA Automation Engineer, vas a generar un script de automatizacion.
 ## Script de automatizacion
 URL: ${currentUrl}
 
-Vamos a automatizar con ${tools}, debes generar un archivo
-<page>_test.py que ejecute el test, donde page es la pagina en la que estas
-actualmente, debes deducirlo de los pasos que te estoy indicando.
+Vamos a automatizar con ${tools}, usando el patron page object debes generar un
+archivo <page>.py con las definiciones de la page y uno <page>_test.py que ejecute
+el test, donde <page> es la pagina en la que estas actualmente, debes deducirlo de
+los pasos que te estoy indicando, crea solo un test por archivo.
 
-Solo crea <page>_test.py y selectores.py, donde irá el código y los selectores html.
+Solo crea un <page>.py, un <page>_test.py y un selectores.py, donde irá el código
+y los selectores html.
 
 Ignora la clase \`hover-highlight\` al buscar selectores de todo el html que te
 proveo porque es reservado para uso interno.
 
-Vamos a generar selectores que sean por texto preferiblemente.
+Vamos a generar selectores que sean por texto preferiblemente a menos que las notas
+indiquen usar un metodo particular, no usar xpath.
+
+Vamos a esperar por el siguiente elemento antes de ejecutar la accion indicada.
 
 El código debe correrse con \`python <page>_test.py\`.
 
@@ -55,7 +60,7 @@ class <Page>TestSuite(unittest.TestCase):
         driver.get(url)
 
         # Paso 1: Indicaciones...
-        elem = driver.find_element(Selectores.A_SELECTOR, "Selecciona el mejor valor posible")
+        elem = driver.find_element(Selectores.<El Selector que corresponda>, "Selecciona el mejor valor posible")
 
         # Paso N: Lo que corresponda
 
