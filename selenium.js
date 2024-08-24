@@ -25,16 +25,23 @@ archivo <page>.py con las definiciones de la page y uno <page>_test.py que ejecu
 el test, donde <page> es la pagina en la que estas actualmente, debes deducirlo de
 los pasos que te estoy indicando, crea solo un test por archivo.
 
-Solo crea un <page>.py, un <page>_test.py y un selectores.py, donde irá el código
-y los selectores html.
+Solo crea un <page>.py con sus respectivos selectores y un <page>_test.py donde
+ira el test con sus respectivos llamados a las <acciones> definidos en la page.
 
 Ignora la clase \`hover-highlight\` al buscar selectores de todo el html que te
 proveo porque es reservado para uso interno.
 
-Vamos a generar selectores que sean por texto preferiblemente a menos que las notas
+Vamos a generar selectores que sean por texto preferiblemente, luego por ID,
+luego por claso, y de ultimo otra opcion que creas conveniente a menos que las notas
 indiquen usar un metodo particular, no usar xpath.
 
 Vamos a esperar por el siguiente elemento antes de ejecutar la accion indicada.
+
+En el test no debe haber busquedas explicitas de elementos, debes usar la page siempre.
+
+Las pages tambien tienen metodos para obtener elementos o valores para ser usados como
+assertions en los tests segun lo que esté indicado en el paso en concordancia
+con la accion dada
 
 El código debe correrse con \`python <page>_test.py\`.
 
@@ -43,30 +50,44 @@ rápidamente.
 
 Este es un template de cada página
 \`\`\`python
+from selenium.webdriver.common.by import By
+
+class <Page>():
+    def __init__(self, driver):
+        self.driver = dirver
+
+    def <accion>(self):
+        self.driver.find_element(By.<El Selector que corresponda>, "Selecciona el mejor valor posible")
+
+    def <accion_n>(self):
+        self.driver.find_element(By.<El Selector que corresponda>, "Selecciona el mejor valor posible")
+\`\`\`
+
+Este es un template de cada test
+\`\`\`python
 import unittest
 from selenium import webdriver
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.firefox import GeckoDriverManager
 
-from selectores import Selectores
-
 class <Page>TestSuite(unittest.TestCase):
 
     def setUp(self):
-        self. driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()))
+        self.driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()))
 
     def test_the_best_name_you_can(self):
-        driver = self.driver
-        driver.get(url)
+        <page> = <Page>(self.driver)
 
         # Paso 1: Indicaciones...
-        elem = driver.find_element(Selectores.<El Selector que corresponda>, "Selecciona el mejor valor posible")
+        <page>.<accion>() # por ejemplo page.click_en_link()
 
         # Paso N: Lo que corresponda
+        <page>.<accion_n>() # por ejemplo page.click_en_link()
 
-        # Verificar que estamos en la página correcta
-
-        # Hacer assertion segun lo que esté indicado en el paso en concordancia con la accion dada
+        # ejemplo de assertion: 
+        # actualTitle = page.title()
+        # expectedTitle = "the title"
+        # this.assertEqual(expectedTitle, actualTitle)
 
 
     def tearDown(self):

@@ -109,6 +109,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Copiar todos los pasos al portapapeles
   finishButton.addEventListener('click', () => {
     document.getElementById('content').textContent = "";
+
+    // Show the loading spinner
+    document.getElementById('loading-spinner').style.display = 'block';
+
     const steps = [];
     const stepDivs = stepsContainer.getElementsByClassName('step');
     for (let stepDiv of stepDivs) {
@@ -134,9 +138,11 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Pasos enviados a la API: ', data);
 
         document.getElementById('content').textContent = data.message;
+        document.getElementById('loading-spinner').style.display = 'none';
       })
       .catch((error) => {
         console.error('Error al enviar pasos a la API: ', error);
+       document.getElementById('loading-spinner').style.display = 'none';
       });
   });
 
@@ -148,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Actualizar el botón de ON/OFF
   function updateToggleButton() {
-    toggleButton.textContent = isActive ? 'ON' : 'OFF';
+    toggleButton.textContent = isActive ? 'Recording' : 'Stopped';
   }
 
   // Cambiar el estado de la extensión
