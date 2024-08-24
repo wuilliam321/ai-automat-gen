@@ -4,17 +4,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const clearAllButton = document.getElementById('clear-all-button');
   const toggleButton = document.getElementById('toggle-button');
   const currentUrlInput = document.getElementById('current-url');
+  const loadingSpinner = document.getElementById('loading-spinner');
+  const codeContainer = document.getElementById('content');
 
   let isActive = false;
 
   // Recuperar pasos guardados y el estado activo
-  chrome.storage.local.get(['steps', 'isActive', 'currentUrl'], function(result) {
+  chrome.storage.local.get(['steps', 'isActive', 'currentUrl', 'code'], function(result) {
     const steps = result.steps || [];
     steps.forEach((step) => {
       addStep(step.id, step.html, step.notes, step.action);
     });
     isActive = result.isActive || false;
     currentUrlInput.value = result.currentUrl || '';
+    codeContainer.textContent = result.code;
     updateToggleButton();
   });
 
@@ -111,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('content').textContent = "";
 
     // Show the loading spinner
-    document.getElementById('loading-spinner').style.display = 'block';
+    loadingSpinner.style.display = 'block';
 
     const steps = [];
     const stepDivs = stepsContainer.getElementsByClassName('step');
@@ -137,12 +140,15 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(data => {
         console.log('Pasos enviados a la API: ', data);
 
-        document.getElementById('content').textContent = data.message;
-        document.getElementById('loading-spinner').style.display = 'none';
+        codeContainer.textContent = data.message;
+        loadingSpinner.style.display = 'none';
+
+        const contenido = data.message;
+        chrome.storage.local.set({ code: contenido });
       })
       .catch((error) => {
         console.error('Error al enviar pasos a la API: ', error);
-       document.getElementById('loading-spinner').style.display = 'none';
+        loadingSpinner.style.display = 'none';
       });
   });
 

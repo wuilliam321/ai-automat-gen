@@ -37,11 +37,7 @@ indiquen usar un metodo particular, no usar xpath.
 
 Vamos a esperar por el siguiente elemento antes de ejecutar la accion indicada.
 
-En el test no debe haber busquedas explicitas de elementos, debes usar la page siempre.
-
-Las pages tambien tienen metodos para obtener elementos o valores para ser usados como
-assertions en los tests segun lo que esté indicado en el paso en concordancia
-con la accion dada
+El test debe usar page para buscar elementos y valores incluso para assertions
 
 El código debe correrse con \`python <page>_test.py\`.
 
@@ -61,6 +57,9 @@ class <Page>():
 
     def <accion_n>(self):
         self.driver.find_element(By.<El Selector que corresponda>, "Selecciona el mejor valor posible")
+
+    def <elemento_o_valor_para_assertions>(self):
+        return self.driver.find_element(By.<El Selector que corresponda>, "Selecciona el mejor valor posible")
 \`\`\`
 
 Este es un template de cada test
@@ -84,10 +83,9 @@ class <Page>TestSuite(unittest.TestCase):
         # Paso N: Lo que corresponda
         <page>.<accion_n>() # por ejemplo page.click_en_link()
 
-        # ejemplo de assertion: 
-        # actualTitle = page.title()
-        # expectedTitle = "the title"
-        # this.assertEqual(expectedTitle, actualTitle)
+        actual = <page>.<elemento_o_valor_para_assertions>()
+        expected = "expected value"
+        this.assertEqual(expected, actual)
 
 
     def tearDown(self):
