@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("steps updated", steps)
       });
 
-      const currentUrl = document.getElementById('current-url').value;
+      const currentUrl = currentUrlInput.value;
       chrome.storage.local.set({ currentUrl }, () => {
         console.log("url updated", currentUrl)
       });
@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Copiar todos los pasos al portapapeles
   finishButton.addEventListener('click', () => {
-    document.getElementById('content').textContent = "";
+    codeContainer.textContent = "";
 
     // Show the loading spinner
     loadingSpinner.style.display = 'block';
@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
       steps.push({ id, action, notes, html: htmlContent });
     }
 
-    const currentUrl = document.getElementById('current-url').value;
+    const currentUrl = currentUrlInput.value;
 
     // Hacer una solicitud POST a la API externa con los datos de los pasos
     fetch('http://192.168.1.19:3001/generate-content', {
