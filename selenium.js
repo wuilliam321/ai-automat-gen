@@ -7,6 +7,25 @@ const handler = async (req, res) => {
   res.json({ message: result });
 };
 
+/**
+ * @typedef {Object} Step
+ * @property {string} action - The action or operation to be performed in this step.
+ * @property {string} [notes] - Optional additional notes or context for the step.
+ * @property {string} html - The HTML code associated with this step, typically representing the element or page structure being interacted with.
+ */
+
+/**
+ * Generates a structured prompt for test steps using a specific format.
+ * 
+ * @param {Step[]} steps - An array of step objects containing test case details.
+ * @param {string} currentUrl - The current URL associated with the test.
+ * @returns {string} A formatted markdown-style prompt string with numbered steps, actions, notes, and HTML code.
+ * 
+ * @description
+ * This function creates a detailed prompt by iterating through an array of steps.
+ * Each step is formatted with a numbered step header, action description, 
+ * optional notes, and HTML code block.
+ */
 function generatePrompt(steps, currentUrl) {
   const tools = "python con unittest y selenium 4"
   let stepContent = '';

@@ -1,4 +1,4 @@
-const url = 'http://192.168.1.19:1234/v1/chat/completions';
+const url = 'http://localhost:1234/v1/chat/completions';
 const model = "bartowski/Codestral-22B-v0.1-GGUF"
 
 async function generateCode(prompt) {
@@ -21,7 +21,9 @@ async function generateCode(prompt) {
     body: body
   })
   let data = await response.json();
-  const contenido = data.choices[0].message.content;
+  console.log("data", data);
+  // const contenido = data.choices[0].message.content;
+  const contenido = data && data.choices && data.choices[0].message.content;
   return contenido;
 }
 
