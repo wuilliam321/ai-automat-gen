@@ -1,4 +1,4 @@
-const model = require('./model');
+const model = require('./claude');
 
 const handler = async (req, res) => {
   const { steps, currentUrl } = req.body;

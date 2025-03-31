@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentUrl = currentUrlInput.value;
 
     // Hacer una solicitud POST a la API externa con los datos de los pasos
-    fetch('http://192.168.1.22:3001/generate-content', {
+    fetch('http://192.168.1.26:3001/generate-content', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
