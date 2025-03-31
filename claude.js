@@ -8,7 +8,7 @@ const anthropic = new Anthropic({
 async function generateCode(prompt) {
   try {
     const response = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20240620', // Latest Claude model
+      model: 'claude-3-7-sonnet-20250219', // Latest Claude model
       max_tokens: 4096,
       temperature: 0.3,
       system: "Do not explain, just give me the filenames and the content of each",
